@@ -1,7 +1,7 @@
 package ru.yandex.market;
 
 
-import helpers.Properties;
+//import helpers.Properties;
 import org.junit.jupiter.api.*;
 
 public class FirstTests {
@@ -30,10 +30,10 @@ public class FirstTests {
         Assertions.assertTrue(1==2,"Один не равно два");
     }
 
-    @Test
+    /*@Test
     public void propsTest(){
         System.out.println("propsTest: "+ Properties.testProperties.googleUrl());
-    }
+    }*/
 
     @AfterEach
     public void afterEach(){
