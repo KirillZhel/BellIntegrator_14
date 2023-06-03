@@ -10,7 +10,7 @@
 
     <properties>
         <junit.jupiter.version>5.7.0-M1</junit.jupiter.version>
-        <seleniumhq.selenium>3.141.59</seleniumhq.selenium>
+        <seleniumhq.selenium>4.9.1</seleniumhq.selenium>
         <qameta.allure>2.13.6</qameta.allure>
         <allure.version>2.13.0</allure.version>
         <aspectj.version>1.9.4</aspectj.version>
@@ -74,6 +74,13 @@
             <groupId>org.aeonbits.owner</groupId>
             <artifactId>owner</artifactId>
             <version>${aeonbits.owner.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.3.3</version>
         </dependency>
     </dependencies>
 
