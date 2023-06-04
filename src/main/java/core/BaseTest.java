@@ -1,5 +1,9 @@
 package core;
 
+import com.browserup.bup.BrowserUpProxy;
+import com.browserup.bup.BrowserUpProxyServer;
+import com.browserup.bup.client.ClientUtil;
+import com.browserup.bup.proxy.CaptureType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,15 +12,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxDriverService;
-import org.openqa.selenium.remote.CapabilityType;
 
-import java.io.File;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Базовый класс теста.
@@ -28,27 +27,21 @@ public class BaseTest {
      * @author Кирилл Желтышев
      */
     protected WebDriver driver;
-    Proxy seleniumProxy;
+    protected BrowserUpProxyServer proxy;
 
     /**
      * Метод инициализации и настройки web-драйвера перед каждым тестом.
      * @author Кирилл Желтышев
      */
     @BeforeEach
-    public void setUp() throws UnknownHostException {
-        //System.setProperty("webdriver.chrome.driver", System.getenv("CHROME_DRIVER"));
-
-        //proxy = new BrowserMobProxyServer();
-        //proxy.start(8080);
-        //seleniumProxy = ClientUtil.createSeleniumProxy(proxy);
-        //String hostIp = Inet4Address.getLocalHost().getHostAddress();
-        //seleniumProxy.setHttpProxy(hostIp + ":" + proxy.getPort());
-        //seleniumProxy.setSslProxy(hostIp + ":" + proxy.getPort());
-        //proxy.enableHarCaptureTypes(CaptureType.REQUEST_CONTENT, CaptureType.RESPONSE_CONTENT, CaptureType.RESPONSE_BINARY_CONTENT);
+    public void setUp() {
+        proxy = new BrowserUpProxyServer();
+        proxy.start(0);
+        proxy.enableHarCaptureTypes(CaptureType.REQUEST_CONTENT, CaptureType.RESPONSE_CONTENT);
 
         WebDriverManager.chromedriver().setup();
-
-        driver = new ChromeDriver();
+        //driver = new ChromeDriver(getOptionsChrome());
+        driver = new ChromeDriver(ChromeDriverService.createDefaultService(), getOptionsChrome());
 
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
@@ -63,6 +56,31 @@ public class BaseTest {
     @AfterEach
     public void tearDown(){
         driver.quit();
-        //proxy.stop();
+        proxy.stop();
+    }
+
+    private ChromeOptions getOptionsChrome() {
+        final Proxy seleniumProxy = ClientUtil.createSeleniumProxy(proxy);
+        final String proxyAddress = resolveProxyAddress(proxy);
+
+        seleniumProxy.setHttpProxy(proxyAddress);
+        seleniumProxy.setSslProxy(proxyAddress);
+
+        ChromeOptions options = new ChromeOptions();
+        options.setProxy(seleniumProxy);
+        options.setAcceptInsecureCerts(true);
+        //options.addArguments("--remote-allow-origins=*");
+
+        return options;
+    }
+
+    private String resolveProxyAddress(BrowserUpProxy proxy) {
+        try {
+            String hostIp = Inet4Address.getLocalHost().getHostAddress();
+            return hostIp + ":" + proxy.getPort();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Wasn't able to resolve proxy address", e);
+        }
+
     }
 }

@@ -1,55 +1,39 @@
 package ru.yandex.market;
 
-import com.google.common.net.MediaType;
+import com.browserup.harreader.model.Har;
+import com.browserup.harreader.model.HarEntry;
+import com.jayway.jsonpath.JsonPath;
 import core.BaseTest;
 import core.Helper;
+import core.MarketVisibleSearchResults;
+import core.WaitUtils;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.HasDevTools;
-import org.openqa.selenium.devtools.NetworkInterceptor;
-import org.openqa.selenium.devtools.v113.network.Network;
-import org.openqa.selenium.devtools.v113.network.model.Response;
-import org.openqa.selenium.remote.http.HttpHandler;
-import org.openqa.selenium.remote.http.HttpResponse;
-import org.openqa.selenium.remote.http.Route;
 import pages.YandexMainPage;
 import pages.YandexMarketMainPage;
 import pages.YandexMarketSERPFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.openqa.selenium.remote.http.Contents.utf8String;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class MyTests extends BaseTest {
 
-    private List<Response> responses = new ArrayList<>();
     @BeforeEach
     public void before() {
-
-
+        proxy.newHar();
     }
+
     @Feature("Yandex Market")
     @DisplayName("Проверка выдачи товаров")
     @Test
-    public void MyTest() {
+    public void MyTest() throws InterruptedException {
         YandexMainPage yandexMainPage = new YandexMainPage(driver);
         yandexMainPage.open();
         yandexMainPage.popupMarketButton.click();
-
         Helper.switchToLastTab(driver);
-
-        DevTools devTools = ((HasDevTools) driver).getDevTools();
-        devTools.createSession();
-        devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.of(100000000)));
-        devTools.addListener(Network.responseReceived(), resp -> {
-            responses.add(resp.getResponse());
-        });
 
         YandexMarketMainPage yandexMarketMainPage = new YandexMarketMainPage(driver);
         yandexMarketMainPage.createCategoryLocatorString("Ноутбуки и компьютеры");
@@ -57,20 +41,45 @@ public class MyTests extends BaseTest {
         yandexMarketMainPage.getAllElements();
         yandexMarketMainPage.subcategory.click();
 
-        // driver.get("https://market.yandex.ru/catalog--noutbuki/54544/list?hid=91013&allowCollapsing=1&local-offers-first=0");
-        // driver.get("https://market.yandex.ru/catalog--noutbuki/54544/list?hid=91013&allowCollapsing=1&local-offers-first=0&pricefrom=10000&priceto=900000&glfilter=7893318%3A459710%2C152981");
         YandexMarketSERPFactory yandexMarketSERPFactory = new YandexMarketSERPFactory(driver);
-        //yandexMarketSERPFactory.getAllElements();
         yandexMarketSERPFactory.manufacturerFilter2.clickShowAllButton();
         yandexMarketSERPFactory.manufacturerFilter2.chooseManufacturer("Lenovo");
         yandexMarketSERPFactory.manufacturerFilter2.chooseManufacturer("HUAWEI");
 
-        //Thread.sleep(5000);
-        //Har har = proxy.getHar();
+        // надо придумать гибкое ожидание ответа (можно дождаться, пока спиннер загрузки списка товаров пропадет или мб у селениума есть встроенные методы)
+        // ну или просто в цикле брать список записанных ответов и проверять, пока не появится ответ с телом для запроса поиска
+
+        WaitUtils.waitForState(
+                () -> getMostRecentHarEntryForSearchRequest(proxy.getHar()),
+                harEntry -> harEntry
+                        .getResponse()
+                        .getContent()
+                        .getSize() > 0);
+
+        // тут надо дождаться, пока запрос состоится
+        MarketVisibleSearchResults resp = extractLatestSearchResultsResponse(proxy.endHar());
     }
 
-    @AfterEach
-    public void cleanUp() {
-        responses.clear();
+    private MarketVisibleSearchResults extractLatestSearchResultsResponse(Har har) {
+        HarEntry mostRecentEntry = getMostRecentHarEntryForSearchRequest(har);
+        String rawJson = mostRecentEntry.getResponse().getContent().getText();
+
+        Map<String, Integer> rawData = (Map<String, Integer>) JsonPath
+                .parse(rawJson)
+                .read("$.results..visibleSearchResult.*['total', 'itemsPerPage', 'page']", List.class)
+                .get(0);
+
+
+        return new MarketVisibleSearchResults(
+                rawData.get("total"),
+                rawData.get("itemsPerPage"),
+                rawData.get("page")
+        );
+    }
+
+    private HarEntry getMostRecentHarEntryForSearchRequest(Har har) {
+        Optional<HarEntry> mostRecentEntry = har.getLog().findMostRecentEntry(Pattern.compile(".*search/resolveRemoteSearch.*"));
+        return mostRecentEntry
+                .orElseThrow(() -> new RuntimeException("Wasn't able to find response for market search"));
     }
 }
