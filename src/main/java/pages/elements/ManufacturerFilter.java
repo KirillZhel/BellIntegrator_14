@@ -34,6 +34,10 @@ public class ManufacturerFilter {
         filterInput().sendKeys(text);
     }
 
+    /**
+     * Клик по чекбоксу у найденого производителя
+     * @param optionName
+     */
     public void clickOption(String optionName) {
         WebElement option = filterContainer().findElement(By.xpath(filterOptionLabel(optionName)));
         option.click();

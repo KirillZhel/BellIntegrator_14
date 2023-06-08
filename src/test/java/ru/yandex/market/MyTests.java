@@ -40,9 +40,11 @@ public class MyTests extends BaseTest {
         yandexMarketMainPage.clickToSubcategory("Ноутбуки");
 
         YandexMarketSERPFactory yandexMarketSERPFactory = new YandexMarketSERPFactory(driver);
-        yandexMarketSERPFactory.manufacturerFilter2.clickShowAllButton();
-        yandexMarketSERPFactory.manufacturerFilter2.chooseManufacturer("Lenovo");
-        yandexMarketSERPFactory.manufacturerFilter2.chooseManufacturer("HUAWEI");
+        yandexMarketSERPFactory.priceFilter.setMinPrice(10000);
+        yandexMarketSERPFactory.priceFilter.setMaxPrice(900000);
+        yandexMarketSERPFactory.manufacturerFilter.clickShowAllButton();
+        yandexMarketSERPFactory.manufacturerFilter.chooseManufacturer("Lenovo");
+        yandexMarketSERPFactory.manufacturerFilter.chooseManufacturer("HUAWEI");
 
         WaitUtils.waitForState(
                 () -> getMostRecentHarEntryForSearchRequest(proxy.getHar()),

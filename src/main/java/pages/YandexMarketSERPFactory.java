@@ -1,28 +1,29 @@
 package pages;
 
 import core.BasePage;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import pages.elements.ManufacturerFilter;
-
-import java.util.List;
+import pages.elements.PriceFilter;
 
 public class YandexMarketSERPFactory extends BasePage {
-    private String manufacturerFilterLocator = "//*[text()='Производитель']/ancestor::fieldset";
-    private String testXPath = "//*[text()='Производитель']/ancestor::fieldset//span[text()]";
+    /*private String manufacturerFilterLocator = "//*[text()='Производитель']/ancestor::fieldset";
+    private String testXPath = "//*[text()='Производитель']/ancestor::fieldset//span[text()]";*/
 
-    public WebElement manufacturerFilter;
-    public List<WebElement> manufacturers;
+    /*public WebElement manufacturerFilter;
+    public List<WebElement> manufacturers;*/
 
-    public ManufacturerFilter manufacturerFilter2;
+
+    public PriceFilter priceFilter;
+    public ManufacturerFilter manufacturerFilter;
 
     public YandexMarketSERPFactory(WebDriver webDriver) {
         super(webDriver);
-        this.manufacturerFilter2 = new ManufacturerFilter(webDriver);
+        priceFilter = new PriceFilter(webDriver);
+        manufacturerFilter = new ManufacturerFilter(webDriver);
     }
-    
+
+    // методы для установки цен
+
     public void getAllElements() {
         /*showAllButton = driver.findElement(By.xpath(showAllButtonLocator));
         showAllButton.click();
