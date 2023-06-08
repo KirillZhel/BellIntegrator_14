@@ -40,7 +40,6 @@ public class BaseTest {
         proxy.enableHarCaptureTypes(CaptureType.REQUEST_CONTENT, CaptureType.RESPONSE_CONTENT);
 
         WebDriverManager.chromedriver().setup();
-        //driver = new ChromeDriver(getOptionsChrome());
         driver = new ChromeDriver(ChromeDriverService.createDefaultService(), getOptionsChrome());
 
         driver.manage().window().maximize();

@@ -8,7 +8,6 @@ import core.Helper;
 import core.MarketVisibleSearchResults;
 import core.WaitUtils;
 import io.qameta.allure.Feature;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,18 +35,14 @@ public class MyTests extends BaseTest {
         Helper.switchToLastTab(driver);
 
         YandexMarketMainPage yandexMarketMainPage = new YandexMarketMainPage(driver);
-        yandexMarketMainPage.createCategoryLocatorString("Ноутбуки и компьютеры");
-        yandexMarketMainPage.createSubcategoryLocatorString("Ноутбуки");
-        yandexMarketMainPage.getAllElements();
-        yandexMarketMainPage.subcategory.click();
+        yandexMarketMainPage.clickToCatalogButton();
+        yandexMarketMainPage.hoverToCategory("Ноутбуки и компьютеры");
+        yandexMarketMainPage.clickToSubcategory("Ноутбуки");
 
         YandexMarketSERPFactory yandexMarketSERPFactory = new YandexMarketSERPFactory(driver);
         yandexMarketSERPFactory.manufacturerFilter2.clickShowAllButton();
         yandexMarketSERPFactory.manufacturerFilter2.chooseManufacturer("Lenovo");
         yandexMarketSERPFactory.manufacturerFilter2.chooseManufacturer("HUAWEI");
-
-        // надо придумать гибкое ожидание ответа (можно дождаться, пока спиннер загрузки списка товаров пропадет или мб у селениума есть встроенные методы)
-        // ну или просто в цикле брать список записанных ответов и проверять, пока не появится ответ с телом для запроса поиска
 
         WaitUtils.waitForState(
                 () -> getMostRecentHarEntryForSearchRequest(proxy.getHar()),
@@ -56,7 +51,6 @@ public class MyTests extends BaseTest {
                         .getContent()
                         .getSize() > 0);
 
-        // тут надо дождаться, пока запрос состоится
         MarketVisibleSearchResults resp = extractLatestSearchResultsResponse(proxy.endHar());
     }
 
