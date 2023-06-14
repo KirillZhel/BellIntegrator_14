@@ -28,7 +28,7 @@ public class MyTests extends BaseTest {
     @Feature("Yandex Market")
     @DisplayName("Проверка выдачи товаров")
     @Test
-    public void MyTest() {
+    public void MyTest() throws InterruptedException {
         YandexMainPage yandexMainPage = new YandexMainPage(driver);
         yandexMainPage.open();
         yandexMainPage.popupMarketButton.click();
@@ -46,7 +46,10 @@ public class MyTests extends BaseTest {
         yandexMarketSERPFactory.priceFilter.setMinPrice(10000);
         yandexMarketSERPFactory.priceFilter.setMaxPrice(900000);
 
-        yandexMarketSERPFactory.scroolToFooter();
+        //yandexMarketSERPFactory.scroolToFooter();
+        yandexMarketSERPFactory.scroolToPagerMoreButton();
+
+        Thread.sleep(5000);
 
         WaitUtils.waitForState(
                 () -> yandexMarketSERPFactory.getAllSnippets(),

@@ -42,7 +42,7 @@ public class YandexMarketSERPFactory extends BasePage {
 
     public Map<String, String> getAllSnippets()
     {
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@data-test-id='virtuoso-item-list']")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@data-test-id='virtuoso-item-list']")));
         //WebElement itemList = driver.findElement(By.xpath("//*[@data-test-id='virtuoso-item-list']"));
         //List<WebElement> snippets = driver.findElements(By.xpath(productSnippetLocator));
         List<WebElement> snippets = driver.findElements(By.xpath(productSnippetLocator));
@@ -61,6 +61,12 @@ public class YandexMarketSERPFactory extends BasePage {
     }
 
     public void scroolToFooter()
+    {
+        actions.scrollToElement(driver.findElement(By.tagName("footer"))).perform();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//footer]")));
+    }
+
+    public void scroolToPagerMoreButton()
     {
         actions.scrollToElement(driver.findElement(By.xpath("//*[@data-auto='pager-more']"))).perform();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@data-auto='pager-more']")));
