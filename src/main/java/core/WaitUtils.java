@@ -16,4 +16,21 @@ public class WaitUtils {
                 .pollInterval(Duration.ofSeconds(1))
                 .until(() -> predicate.test(objSupplier.get()));
     }
+
+    public static <T> void waitFor(boolean condition) {
+        Awaitility
+                .await()
+                .ignoreExceptions()
+                .atMost(Duration.ofSeconds(20))
+                .pollInterval(Duration.ofSeconds(1))
+                .until(() -> condition);
+    }
+
+    public static void wait(Duration duration) {
+        try {
+            Thread.sleep(duration.toMillis());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

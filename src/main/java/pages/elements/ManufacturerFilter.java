@@ -31,6 +31,11 @@ public class ManufacturerFilter {
 
         button.click();
     }
+
+    public void chooseManufacturers(List<String> manufacturers) {
+        manufacturers.forEach(this::chooseManufacturer);
+    }
+
     public void chooseManufacturer(String name) {
         clearFilterInput();
         typeTextToInput(name);
