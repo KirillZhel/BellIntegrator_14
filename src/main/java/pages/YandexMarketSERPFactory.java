@@ -64,11 +64,13 @@ public class YandexMarketSERPFactory extends BasePage {
     {
         actions.scrollToElement(driver.findElement(By.tagName("footer"))).perform();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//footer]")));
+        actions.scrollByAmount(0,-2000);
     }
 
     public void scroolToPagerMoreButton()
     {
         actions.scrollToElement(driver.findElement(By.xpath("//*[@data-auto='pager-more']"))).perform();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@data-auto='pager-more']")));
+        actions.scrollByAmount(0,-2000);
     }
 }
