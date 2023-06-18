@@ -3,9 +3,6 @@ package pages.elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class ManufacturerFilter {
@@ -14,14 +11,9 @@ public class ManufacturerFilter {
     private final String filterInputLocator = ".//input[./preceding-sibling::label[text()='Найти производителя']]";
 
     private final WebDriver driver;
-    private final Actions actions;
-
-    private List<String> manufacturerList;
 
     public ManufacturerFilter(WebDriver driver) {
         this.driver = driver;
-        actions = new Actions(driver);
-        manufacturerList = new ArrayList<>();
     }
 
     public void clickShowAllButton() {
@@ -40,17 +32,6 @@ public class ManufacturerFilter {
         clearFilterInput();
         typeTextToInput(name);
         clickOption(name);
-        manufacturerList.add(name);
-    }
-
-    public void clearManufacturerList()
-    {
-        manufacturerList.clear();
-    }
-
-    public List<String> getManufacturerList()
-    {
-        return manufacturerList;
     }
 
     public void typeTextToInput(String text) {
@@ -82,5 +63,4 @@ public class ManufacturerFilter {
     private WebElement filterContainer() {
         return driver.findElement(By.xpath(manufacturerFilterLocator));
     }
-
 }

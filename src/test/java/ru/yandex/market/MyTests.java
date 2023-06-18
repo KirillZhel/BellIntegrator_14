@@ -3,10 +3,7 @@ package ru.yandex.market;
 import com.browserup.harreader.model.Har;
 import com.browserup.harreader.model.HarEntry;
 import com.jayway.jsonpath.JsonPath;
-import core.BaseTest;
-import core.Helper;
-import core.SearchResultsInfo;
-import core.UriUtils;
+import core.*;
 import io.qameta.allure.Feature;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,13 +30,12 @@ public class MyTests extends BaseTest {
     @Feature("Yandex Market")
     @DisplayName("Проверка выдачи товаров")
     @Test
-    public void MyTest() throws InterruptedException {
+    public void MyTest() {
         List<String> manufacturersForFilter = List.of("Lenovo", "HUAWEI");
         List<String> manufacturersLowerCase = manufacturersForFilter.stream().map(String::toLowerCase).collect(Collectors.toList());
         int minPriceForFilter = 10000;
         int maxPriceForFilter = 900000;
-        List<Integer> pagesToCheck = List.of(1,5,10);
-
+        int snippetsNumber = 12;
 
         YandexMainPage yandexMainPage = new YandexMainPage(driver);
         yandexMainPage.open();
@@ -54,44 +50,75 @@ public class MyTests extends BaseTest {
         YandexMarketSERPFactory yandexMarketSERPFactory = new YandexMarketSERPFactory(driver);
         yandexMarketSERPFactory.manufacturerFilter.clickShowAllButton();
         yandexMarketSERPFactory.manufacturerFilter.chooseManufacturers(manufacturersForFilter);
-        yandexMarketSERPFactory.priceFilter.setMinPrice(10000);
-        yandexMarketSERPFactory.priceFilter.setMaxPrice(900000);
+        yandexMarketSERPFactory.priceFilter.setMinPrice(minPriceForFilter);
+        yandexMarketSERPFactory.priceFilter.setMaxPrice(maxPriceForFilter);
 
+        List<Snippet> snippets = getAllSnippetFromPage(yandexMarketSERPFactory);
+        Assertions.assertTrue(snippets.size() > snippetsNumber, "На странице отображается меньше " + snippetsNumber + "элементов.");
+
+        Assertions.assertTrue(
+                areAllSnippetOnPageMatchTheFilter(snippets, manufacturersLowerCase, minPriceForFilter, maxPriceForFilter),
+                "Не все предложения на 1 странице соответствуют фильтру");
+
+        SearchResultsInfo info = getSearchResultsInfo();
+
+        String baseUrl = driver.getCurrentUrl();
+        int randomPage = goToRandomPage(info);
+        snippets = getAllSnippetFromPage(yandexMarketSERPFactory);
+        Assertions.assertTrue(areAllSnippetOnPageMatchTheFilter(snippets, manufacturersLowerCase, minPriceForFilter, maxPriceForFilter),
+                "Не все предложения на странице " + randomPage + " соответствуют фильтру");
+
+        int lastPage = goToLastPage(info);
+        snippets = getAllSnippetFromPage(yandexMarketSERPFactory);
+        Assertions.assertTrue(areAllSnippetOnPageMatchTheFilter(snippets, manufacturersLowerCase, minPriceForFilter, maxPriceForFilter),
+                "Не все предложения на странице " + lastPage + " соответствуют фильтру");
+
+        driver.get(baseUrl);
+        Snippet firstSnippet = getAllSnippetFromPage(yandexMarketSERPFactory).stream().findFirst().get();
+    }
+
+    private int goToLastPage(SearchResultsInfo info) {
+        int lastPageNumber = getLastPageNumber(info);
+        goToPage(lastPageNumber);
+        return lastPageNumber;
+    }
+
+    private int goToRandomPage(SearchResultsInfo info) {
+        int randomPageNumber = getRandomPageNumber(info);
+        goToPage(randomPageNumber);
+        return randomPageNumber;
+    }
+
+    private void goToPage(int pageNumber) {
+        String randomPageUrl = UriUtils.addQueryParameters(driver.getCurrentUrl(), Map.of("page", String.valueOf(pageNumber)));
+        driver.get(randomPageUrl);
+    }
+
+    public int getRandomPageNumber(SearchResultsInfo info) {
+        int lastPageNumber = getLastPageNumber(info);
+        int firstPageNumber = 1;
+        return RandomUtils.nextInt(firstPageNumber + 1, lastPageNumber);
+    }
+
+    public int getLastPageNumber(SearchResultsInfo info) {
+        return Math.min(info.total, 30);
+    }
+
+    private boolean areAllSnippetOnPageMatchTheFilter(List<Snippet> snippets, List<String> manufacturersLowerCase, int minPriceForFilter, int maxPriceForFilter) {
+        return areAllSnippetsContainsAnyStringInName(snippets, manufacturersLowerCase)
+                && areAllSnippetsHaveCurrentPrice(snippets, minPriceForFilter, maxPriceForFilter);
+    }
+
+
+    private List<Snippet> getAllSnippetFromPage(YandexMarketSERPFactory yandexMarketSERPFactory)
+    {
         yandexMarketSERPFactory.waitForDataLoaded();
-
-        String anotherUrl = UriUtils.addQueryParameters(driver.getCurrentUrl(), Map.of("page", "4"));
-        driver.get(anotherUrl);
-
-        //проверить страницу
-        //перейти на рандом.сттаницу
-        //проверить
-        //перейти на последнюю
-        //проверить
-        //перейти на первую
-        //
-        //поиск первого товара
-        //String firstProductName = yandexMarketSERPFactory.getProductNameByIndex(1);
-        // data-auto="spinner" - может проверить, если данный элемент на странице. Если нет, то уже брать список товаров
-        //List<WebElement> spinner = driver.findElements(By.xpath("//*[@data-auto='spinner']"));
-        //проверка страницы на соответствие фильтрам
-        //yandexMarketSERPFactory.scroolToFooter();
         yandexMarketSERPFactory.scrollAllSnippets();
+        return yandexMarketSERPFactory.getShownSnippetsList();
+    }
 
-        List<Snippet> snippets = yandexMarketSERPFactory.getShownSnippetsList();
-        boolean allSnippetsHaveFilteredManufacturerInName = this.areAllSnippetsContainsAnyStringInName(snippets, manufacturersLowerCase);
-        boolean allSnippetsHaveFilteredPrice = snippets.stream()
-                .allMatch(snippet -> snippet.price >= minPriceForFilter && snippet.price <= maxPriceForFilter);
-
-
-        List<Snippet> allSnippets = yandexMarketSERPFactory.snippets;
-
-        boolean ansList = yandexMarketSERPFactory.checker.checkManufacturer(
-                yandexMarketSERPFactory.manufacturerFilter.getManufacturerList(),
-                allSnippets);
-        boolean ansMap = yandexMarketSERPFactory.checker.checkManufacturer(
-                yandexMarketSERPFactory.manufacturerFilter.getManufacturerList(),
-                yandexMarketSERPFactory.map);
-
+    private SearchResultsInfo getSearchResultsInfo()
+    {
         waitForState(
                 () -> getMostRecentHarEntryForSearchRequest(proxy.getHar()),
                 harEntry -> harEntry
@@ -99,11 +126,19 @@ public class MyTests extends BaseTest {
                         .getContent()
                         .getSize() > 0);
 
-        SearchResultsInfo info = extractLatestSearchResultsResponse(proxy.endHar());
-        int lastPageNumber = Math.min(info.total, 30);
-        int firstPageNumber = 1;
-        int randomPageNumber = RandomUtils.nextInt(firstPageNumber + 1, lastPageNumber);
+        return extractLatestSearchResultsResponse(proxy.endHar());
+    }
 
+    private boolean areAllSnippetsHaveCurrentPrice(List<Snippet> snippets, int minPrice, int maxPrice)
+    {
+        return snippets.stream().allMatch(snippet -> snippet.price >= minPrice && snippet.price <= maxPrice);
+    }
+
+    private boolean areAllSnippetsContainsAnyStringInName(List<Snippet> snippets, List<String> strings) {
+        return snippets.stream()
+                .map(snippet -> snippet.name.toLowerCase())
+                .allMatch(snippetName -> strings.stream()
+                        .anyMatch(snippetName::contains));
     }
 
     private SearchResultsInfo extractLatestSearchResultsResponse(Har har) {
@@ -115,38 +150,16 @@ public class MyTests extends BaseTest {
                 .read("$.results..visibleSearchResult.*['total', 'itemsPerPage', 'page']", List.class)
                 .get(0);
 
-
         return new SearchResultsInfo(
                 rawData.get("total"),
                 rawData.get("itemsPerPage"),
                 rawData.get("page")
         );
-
     }
 
     private HarEntry getMostRecentHarEntryForSearchRequest(Har har) {
         Optional<HarEntry> mostRecentEntry = har.getLog().findMostRecentEntry(Pattern.compile(".*search/resolveRemoteSearch.*"));
         return mostRecentEntry
                 .orElseThrow(() -> new RuntimeException("Wasn't able to find response for market search"));
-    }
-
-    /*
-    1. Сделать класс проверяльщик (статический?)
-    2. В его метод вкидываются цены и производители и список для проверки
-    3. В нем есть методы для проверки цены, производителя по отдельности, возвращают булы
-    4. Общий метод, который вызывает эти методы, возвращает булы
-    */
-
-    /*
-    1. Метод, который возвращает ссылки на страницы, которые надо проверить (страницы магазина).
-    Поместить тоже в класс статический. В него помещаются базовая ссылка и класс, который содержит
-    информацию о количестве товаров и страниц. В классе есть рандомайзер для создания ссылок на
-    промежуточные страницы
-    */
-    private boolean areAllSnippetsContainsAnyStringInName(List<Snippet> snippets, List<String> strings) {
-        return snippets.stream()
-                .map(snippet -> snippet.name.toLowerCase())
-                .allMatch(snippetName -> strings.stream()
-                        .anyMatch(snippetName::contains));
     }
 }
