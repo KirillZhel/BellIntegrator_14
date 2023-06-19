@@ -27,10 +27,14 @@ public class BaseTest {
      * @author Кирилл Желтышев
      */
     protected WebDriver driver;
+    /**
+     * прокси.
+     * @author Кирилл Желтышев
+     */
     protected BrowserUpProxyServer proxy;
 
     /**
-     * Метод инициализации и настройки web-драйвера перед каждым тестом.
+     * Метод инициализации и настройки web-драйвера и прокси перед каждым тестом.
      * @author Кирилл Желтышев
      */
     @BeforeEach
@@ -49,7 +53,7 @@ public class BaseTest {
     }
 
     /**
-     * Метод закрытия web-драйвера после каждого теста.
+     * Метод закрытия web-драйвера и прокси после каждого теста.
      * @author Кирилл Желтышев
      */
     @AfterEach
@@ -58,6 +62,10 @@ public class BaseTest {
         proxy.stop();
     }
 
+    /**
+     * Метод настроек web-драйвера после каждого теста.
+     * @author Кирилл Желтышев
+     */
     private ChromeOptions getOptionsChrome() {
         final Proxy seleniumProxy = ClientUtil.createSeleniumProxy(proxy);
         final String proxyAddress = resolveProxyAddress(proxy);
@@ -68,18 +76,21 @@ public class BaseTest {
         ChromeOptions options = new ChromeOptions();
         options.setProxy(seleniumProxy);
         options.setAcceptInsecureCerts(true);
-        //options.addArguments("--remote-allow-origins=*");
 
         return options;
     }
 
+    /**
+     * Метод возвращает адресс прокси
+     * @param proxy прокси
+     * @return адресс прокси в виде строки
+     */
     private String resolveProxyAddress(BrowserUpProxy proxy) {
         try {
             String hostIp = Inet4Address.getLocalHost().getHostAddress();
             return hostIp + ":" + proxy.getPort();
         } catch (UnknownHostException e) {
-            throw new RuntimeException("Wasn't able to resolve proxy address", e);
+            throw new RuntimeException("Не удалось создать адресс прокси:", e);
         }
-
     }
 }

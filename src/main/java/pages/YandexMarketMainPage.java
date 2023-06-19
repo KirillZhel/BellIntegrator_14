@@ -1,53 +1,102 @@
 package pages;
 
 import core.BasePage;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+/**
+ * Класс главной страницы Яндекс Маркета.
+ * @author Кирилл Желтышев
+ */
 public class YandexMarketMainPage extends BasePage {
-    private String catalogButtonID = "catalogPopupButton";
+    /**
+     * ID кнопки "Каталог".
+     * @author Кирилл Желтышев
+     */
+    private final String catalogButtonId = "catalogPopupButton";
+    /**
+     * Локатор категории.
+     * @author Кирилл Желтышев
+     */
     private String  categoryLocator;
+    /**
+     * Локатор подкатегории.
+     * @author Кирилл Желтышев
+     */
     private String  subcategoryLocator;
 
-    private WebElement catalogButton;
-    private WebElement categoryLink;
-    private WebElement subcategoryLink;
-
+    /**
+     * Конструктор класса.
+     * @author Кирилл Желтышев
+     * @param webDriver Web-драйвер
+     */
     public YandexMarketMainPage(WebDriver webDriver) {
         super(webDriver);
     }
 
-    public void clickToCatalogButton() {
-        catalogButton = driver.findElement(By.id(catalogButtonID));
+    /**
+     * Метод открытия меню каталога.
+     * @author Кирилл Желтышев
+     */
+    @Step("Открываем каталог по нажатию на кнопку \"Каталог\".")
+    public void openCatalog() {
+        WebElement catalogButton = driver.findElement(By.id(catalogButtonId));
         catalogButton.click();
     }
 
+    /**
+     * Метод перехода к категории.
+     * @author Кирилл Желтышев
+     * @param category Категория, к которой надо перейти
+     */
+    @Step("Перемещаемся на категорию: \"{category}\".")
     public void hoverToCategory(String category) {
         createCategoryLocatorString(category);
-        categoryLink = findLink(categoryLocator);
+        WebElement categoryLink = findElement(categoryLocator);
         actions.moveToElement(categoryLink);
     }
 
-    public void clickToSubcategory(String subcategory) {
+    /**
+     * Метод открытия подкатегории.
+     * @author Кирилл Желтышев
+     * @param subcategory Подкатегория, в которую нужно перейти.
+     */
+    @Step("Переходим на подкатегорию: \"{subcategory}\".")
+    public void openSubcategory(String subcategory) {
         createSubcategoryLocatorString(subcategory);
-        subcategoryLink = findLink(subcategoryLocator);
+        WebElement subcategoryLink = findElement(subcategoryLocator);
         subcategoryLink.click();
     }
 
-    private  WebElement findLink(String locator) {
+    /**
+     * Метод поиска элемента.
+     * @author Кирилл Желтышев
+     * @param locator Локатор искомого элемента
+     * @return Искомый элемент
+     */
+    private  WebElement findElement(String locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locator)));
         return driver.findElement(By.xpath(locator));
     }
 
+    /**
+     * Метод составления локатора категории.
+     * @author Кирилл Желтышев
+     * @param category Категория, под которыю требуется составить локатор
+     */
     private void createCategoryLocatorString(String category) {
-        // переделать локатор под более приятный вид без явного указания оси ancestor
         categoryLocator = "//*[text()='" + category + "']/ancestor::li";
     }
 
+    /**
+     * Метод составления локатора подкатегории.
+     * @author Кирилл Желтышев
+     * @param subcategory Подкатегория, под которыю требуется составить локатор
+     */
     private void createSubcategoryLocatorString(String subcategory) {
-        // переделать локатор под более приятный вид без явного указания оси ancestor
         subcategoryLocator = "//*[text()='" + subcategory + "']/ancestor::li";
     }
 }

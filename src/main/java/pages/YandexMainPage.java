@@ -1,36 +1,72 @@
 package pages;
 
 import core.BasePage;
+import helpers.Helper;
+import helpers.Properties;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+/**
+ * Класс главной страницы Яндекс.
+ * @author Кирилл Желтышев
+ */
 public class YandexMainPage extends BasePage {
-    //переместить в проперти
-    private String url = "https://ya.ru/";
-    private String searchFieldLocator = "//*[@id='text']";
-    private String moreServicesButtonLocator = "//*[@class='services-suggest__icons-more']";
-    private String popupMarketButtonLocator = "//*[text()='Маркет']/ancestor::span";
+    /**
+     * Локатор строки поиска.
+     * @author Кирилл Желтышев
+     */
+    private final String searchFieldLocator = "//*[@id='text']";
+    /**
+     * Локатор кнопки "все"
+     * @author Кирилл Желтышев
+     */
+    private final String moreServicesButtonLocator = "//*[@class='services-suggest__icons-more']";
+    /**
+     * Локатор кнопки "Маркет" в сервисах.
+     * @author Кирилл Желтышев
+     */
+    private final String popupMarketButtonLocator = "//*[text()='Маркет']/ancestor::span";
 
-    public WebElement searchField;
-    public WebElement moreServicesButton;
-    public WebElement popupMarketButton;
-
-
+    /**
+     * Конструктор класса.
+     * @author Кирилл Желтышев
+     * @param webDriver Web-драйвер.
+     */
     public YandexMainPage(WebDriver webDriver) {
         super(webDriver);
     }
 
+    /**
+     * Метод открытия главной страницы Яндекса.
+     * @author Кирилл Желтышев
+     */
+    @Step("Открываем главную страницу.")
     public void open() {
-        driver.get(url);
-        getAllElements();
+        driver.get(Properties.testProperties.yandexUrl());
     }
 
-    private void getAllElements() {
-        searchField = driver.findElement(By.xpath(searchFieldLocator));
+    /**
+     * Метод открытия окна сервисов на главной странице.
+     * @author Кирилл Желтышев
+     */
+    @Step("Открываем \"Все сервисы\".")
+    public void openScrollbarServices() {
+        WebElement searchField = driver.findElement(By.xpath(searchFieldLocator));
         searchField.click();
-        moreServicesButton = driver.findElement(By.xpath(moreServicesButtonLocator));
+        WebElement moreServicesButton = driver.findElement(By.xpath(moreServicesButtonLocator));
         moreServicesButton.click();
-        popupMarketButton = driver.findElement(By.xpath(popupMarketButtonLocator));
+    }
+
+    /**
+     * Метод открытия и перехода страницы Яндекс Маркета.
+     * @author Кирилл Желтышев
+     */
+    @Step("Открываем Яндекс Маркет.")
+    public void openMarket() {
+        WebElement popupMarketButton = driver.findElement(By.xpath(popupMarketButtonLocator));
+        popupMarketButton.click();
+        Helper.switchToLastTab(driver);
     }
 }

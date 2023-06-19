@@ -1,4 +1,4 @@
-package core;
+package helpers;
 
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
@@ -9,7 +9,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Класс, содержпщий дополнительные методы работы с url
+ * @author Кирилл Желтышев
+ */
 public class UriUtils {
+    /**
+     * Метод добавления новых параметров в url
+     * @author Кирилл Желтышев
+     * @param url базовый url
+     * @param parameters новые параметры
+     * @return новый url
+     */
     public static String addQueryParameters(String url, Map<String, String> parameters) {
         try {
             List<NameValuePair> params = parameters.entrySet().stream()
@@ -19,7 +30,7 @@ public class UriUtils {
                     .addParameters(params)
                     .build().toString();
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Unable to parse url", e);
+            throw new RuntimeException("Не удалось спарсить url", e);
         }
     }
 }
