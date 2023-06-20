@@ -4,10 +4,9 @@ import com.browserup.harreader.model.Har;
 import com.browserup.harreader.model.HarEntry;
 import com.jayway.jsonpath.JsonPath;
 import core.*;
-import helpers.UriUtils;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Step;
-import org.apache.commons.lang3.RandomUtils;
+import models.SearchResultsInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import pages.YandexMainPage;
 import pages.YandexMarketMainPage;
 import pages.YandexMarketCategoryPage;
-import pages.elements.Snippet;
+import models.Snippet;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -69,10 +68,10 @@ public class YandexMarketTests extends BaseTest {
         yandexMarketMainPage.openSubcategory(subcategory);
 
         YandexMarketCategoryPage yandexMarketCategoryPage = new YandexMarketCategoryPage(driver);
-        yandexMarketCategoryPage.manufacturerFilter.clickShowAllButton();
-        yandexMarketCategoryPage.manufacturerFilter.chooseManufacturers(manufacturersForFilter);
-        yandexMarketCategoryPage.priceFilter.setMinPrice(minPriceForFilter);
-        yandexMarketCategoryPage.priceFilter.setMaxPrice(maxPriceForFilter);
+        yandexMarketCategoryPage.getManufacturerFilter().clickShowAllButton();
+        yandexMarketCategoryPage.getManufacturerFilter().chooseManufacturers(manufacturersForFilter);
+        yandexMarketCategoryPage.getPriceFilter().setMinPrice(minPriceForFilter);
+        yandexMarketCategoryPage.getPriceFilter().setMaxPrice(maxPriceForFilter);
 
         List<Snippet> snippets = yandexMarketCategoryPage.getAllSnippetFromPage();
         Assertions.assertTrue(snippets.size() > snippetsNumber, "На странице отображается меньше " + snippetsNumber + "элементов.");
@@ -82,17 +81,17 @@ public class YandexMarketTests extends BaseTest {
 
         SearchResultsInfo info = getSearchResultsInfo();
 
-        int randomPage = goToRandomPage(info);
+        int randomPage = yandexMarketCategoryPage.goToRandomPage(info);
         snippets = yandexMarketCategoryPage.getAllSnippetFromPage();
         Assertions.assertTrue(areAllSnippetOnPageMatchTheFilter(snippets, manufacturersForFilter, minPriceForFilter, maxPriceForFilter),
                 "Не все предложения на странице " + randomPage + " соответствуют фильтру.");
 
-        int lastPage = goToLastPage(info);
+        int lastPage = yandexMarketCategoryPage.goToLastPage(info);
         snippets = yandexMarketCategoryPage.getAllSnippetFromPage();
         Assertions.assertTrue(areAllSnippetOnPageMatchTheFilter(snippets, manufacturersForFilter, minPriceForFilter, maxPriceForFilter),
                 "Не все предложения на странице " + lastPage + " соответствуют фильтру.");
 
-        goToFirstPage();
+        yandexMarketCategoryPage.goToFirstPage();
         Snippet firstSnippet = yandexMarketCategoryPage.getAllSnippetFromPage().stream().findFirst().get();
         yandexMarketCategoryPage.search(firstSnippet.name);
         snippets = yandexMarketCategoryPage.getAllSnippetFromPage();
@@ -113,76 +112,6 @@ public class YandexMarketTests extends BaseTest {
                 .collect(Collectors.toList());
 
         return filtredSnippet.stream().anyMatch(snippet -> snippet.price == snippetForSearch.price);
-    }
-
-    /**
-     * Метод перехода на последнюю страницу выдачи товаров.
-     * @author Кирилл Желтышев
-     * @param info Объект дополнительной информации поиска
-     * @return Номер последней страницы
-     */
-    @Step("Переходим на последнюю страницу.")
-    private int goToLastPage(SearchResultsInfo info) {
-        int lastPageNumber = getLastPageNumber(info);
-        goToPage(lastPageNumber);
-        return lastPageNumber;
-    }
-
-    /**
-     * Метод перехода на случайную страницу выдачи товаров.
-     * @author Кирилл Желтышев
-     * @param info Объект дополнительной информации поиска
-     * @return Номер случайной страницы
-     */
-    @Step("Переходим на случайную страницу.")
-    private int goToRandomPage(SearchResultsInfo info) {
-        int randomPageNumber = getRandomPageNumber(info);
-        goToPage(randomPageNumber);
-        return randomPageNumber;
-    }
-
-    /**
-     * Метод перехода на первую страницу выдачи товаров.
-     * @author Кирилл Желтышев
-     * @return Номер первой страницы
-     */
-    @Step("Переходим на первую страницу")
-    private int goToFirstPage() {
-        goToPage(1);
-        return 1;
-    }
-
-    /**
-     * Метод перехода на страницу выдачи товаров.
-     * @author Кирилл Желтышев
-     * @param pageNumber Номер страницы
-     */
-    @Step("Переходим на {pageNumber} страницу.")
-    private void goToPage(int pageNumber) {
-        String randomPageUrl = UriUtils.addQueryParameters(driver.getCurrentUrl(), Map.of("page", String.valueOf(pageNumber)));
-        driver.get(randomPageUrl);
-    }
-
-    /**
-     * Метод, возвращающий случайный номер страницы.
-     * @author Кирилл Желтышев
-     * @param info Объект дополнительной информации поиска
-     * @return Случайный номер страницы
-     */
-    private int getRandomPageNumber(SearchResultsInfo info) {
-        int lastPageNumber = getLastPageNumber(info);
-        int firstPageNumber = 1;
-        return RandomUtils.nextInt(firstPageNumber + 1, lastPageNumber);
-    }
-
-    /**
-     * Метод, возвращающий номер последней страницы выдачи.
-     * @author Кирилл Желтышев
-     * @param info Объект дополнительной информации поиска
-     * @return Номер последней страницы
-     */
-    private int getLastPageNumber(SearchResultsInfo info) {
-        return Math.min(info.pagesCount, 30);
     }
 
     /**

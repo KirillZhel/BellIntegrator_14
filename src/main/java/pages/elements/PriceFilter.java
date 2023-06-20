@@ -14,12 +14,12 @@ public class PriceFilter {
      * Локатор строки ввода минимальной цены.
      * @author Кирилл Желтышев
      */
-    private final String minPriceInputLocator = "//*[text()='Цена, ₽ от']//following-sibling::*//input";
+    private final String minPriceInputLocator = "//*[@data-filter-id='glprice']//*[@data-auto='filter-range-min']//input";
     /**
      * Локатор строки ввода максимальной цены.
      * @author Кирилл Желтышев
      */
-    private final String maxPriceInputLocator = "//*[text()='Цена, ₽ до']//following-sibling::*//input";
+    private final String maxPriceInputLocator = "//*[@data-filter-id='glprice']//*[@data-auto='filter-range-max']//input";
     /**
      * Web-драйвер.
      * @author Кирилл Желтышев

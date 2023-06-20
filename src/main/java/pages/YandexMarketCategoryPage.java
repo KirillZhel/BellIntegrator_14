@@ -1,14 +1,17 @@
 package pages;
 
 import core.BasePage;
+import helpers.UriUtils;
 import helpers.WaitUtils;
 import io.qameta.allure.Step;
+import models.SearchResultsInfo;
+import org.apache.commons.lang3.RandomUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import pages.elements.ManufacturerFilter;
 import pages.elements.PriceFilter;
-import pages.elements.Snippet;
+import models.Snippet;
 
 import java.time.Duration;
 import java.util.*;
@@ -50,12 +53,12 @@ public class YandexMarketCategoryPage extends BasePage {
      * Ценовой фильтр.
      * @author Кирилл Желтышев
      */
-    public PriceFilter priceFilter;
+    private final PriceFilter priceFilter;
     /**
      * Фильтр производителей.
      * @author Кирилл Желтышев
      */
-    public ManufacturerFilter manufacturerFilter;
+    private final ManufacturerFilter manufacturerFilter;
 
     /**
      * Конструктор класса.
@@ -66,6 +69,24 @@ public class YandexMarketCategoryPage extends BasePage {
         super(webDriver);
         priceFilter = new PriceFilter(webDriver);
         manufacturerFilter = new ManufacturerFilter(webDriver);
+    }
+
+    /**
+     * Геттер для фильтра по цене.
+     * @author Кирилл Желтышев
+     * @return Элемент фильтра по цене
+     */
+    public PriceFilter getPriceFilter() {
+        return priceFilter;
+    }
+
+    /**
+     * Геттер для фильтра по производителям.
+     * @author Кирилл Желтышев
+     * @return Элемент фильтра по производителям
+     */
+    public ManufacturerFilter getManufacturerFilter() {
+        return manufacturerFilter;
     }
 
     /**
@@ -115,6 +136,8 @@ public class YandexMarketCategoryPage extends BasePage {
     public void waitForDataLoaded() {
         Supplier<WebElement> spinner = () -> driver.findElement(By.xpath(spinnerLocator));
         WaitUtils.waitForState(spinner, it -> !it.isDisplayed());
+        WaitUtils.waitForState(() -> driver.findElements(By.xpath(productSnippetLocator)),
+                elements -> elements.size() > 0);
     }
 
     /**
@@ -135,5 +158,75 @@ public class YandexMarketCategoryPage extends BasePage {
             if (previousSnippetsList.size() == currentSnippetsList.size()) return;
             previousSnippetsList = currentSnippetsList;
         }
+    }
+
+    /**
+     * Метод перехода на последнюю страницу выдачи товаров.
+     * @author Кирилл Желтышев
+     * @param info Объект дополнительной информации поиска
+     * @return Номер последней страницы
+     */
+    @Step("Переходим на последнюю страницу.")
+    public int goToLastPage(SearchResultsInfo info) {
+        int lastPageNumber = getLastPageNumber(info);
+        goToPage(lastPageNumber);
+        return lastPageNumber;
+    }
+
+    /**
+     * Метод перехода на случайную страницу выдачи товаров.
+     * @author Кирилл Желтышев
+     * @param info Объект дополнительной информации поиска
+     * @return Номер случайной страницы
+     */
+    @Step("Переходим на случайную страницу.")
+    public int goToRandomPage(SearchResultsInfo info) {
+        int randomPageNumber = getRandomPageNumber(info);
+        goToPage(randomPageNumber);
+        return randomPageNumber;
+    }
+
+    /**
+     * Метод перехода на первую страницу выдачи товаров.
+     * @author Кирилл Желтышев
+     * @return Номер первой страницы
+     */
+    @Step("Переходим на первую страницу")
+    public int goToFirstPage() {
+        goToPage(1);
+        return 1;
+    }
+
+    /**
+     * Метод перехода на страницу выдачи товаров.
+     * @author Кирилл Желтышев
+     * @param pageNumber Номер страницы
+     */
+    @Step("Переходим на {pageNumber} страницу.")
+    public void goToPage(int pageNumber) {
+        String randomPageUrl = UriUtils.addQueryParameters(driver.getCurrentUrl(), Map.of("page", String.valueOf(pageNumber)));
+        driver.get(randomPageUrl);
+    }
+
+    /**
+     * Метод, возвращающий случайный номер страницы.
+     * @author Кирилл Желтышев
+     * @param info Объект дополнительной информации поиска
+     * @return Случайный номер страницы
+     */
+    private int getRandomPageNumber(SearchResultsInfo info) {
+        int lastPageNumber = getLastPageNumber(info);
+        int firstPageNumber = 1;
+        return RandomUtils.nextInt(firstPageNumber + 1, lastPageNumber);
+    }
+
+    /**
+     * Метод, возвращающий номер последней страницы выдачи.
+     * @author Кирилл Желтышев
+     * @param info Объект дополнительной информации поиска
+     * @return Номер последней страницы
+     */
+    private int getLastPageNumber(SearchResultsInfo info) {
+        return Math.min(info.pagesCount, 30);
     }
 }

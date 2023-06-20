@@ -1,4 +1,4 @@
-package pages.elements;
+package models;
 
 import java.util.Objects;
 

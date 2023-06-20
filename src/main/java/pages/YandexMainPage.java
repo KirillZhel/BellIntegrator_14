@@ -1,7 +1,7 @@
 package pages;
 
 import core.BasePage;
-import helpers.Helper;
+import helpers.PageHelper;
 import helpers.Properties;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
@@ -27,7 +27,7 @@ public class YandexMainPage extends BasePage {
      * Локатор кнопки "Маркет" в сервисах.
      * @author Кирилл Желтышев
      */
-    private final String popupMarketButtonLocator = "//*[text()='Маркет']/ancestor::span";
+    private final String popupMarketButtonLocator = "//*[@data-id='market']/ancestor::span";
 
     /**
      * Конструктор класса.
@@ -67,6 +67,6 @@ public class YandexMainPage extends BasePage {
     public void openMarket() {
         WebElement popupMarketButton = driver.findElement(By.xpath(popupMarketButtonLocator));
         popupMarketButton.click();
-        Helper.switchToLastTab(driver);
+        PageHelper.switchToLastTab(driver);
     }
 }

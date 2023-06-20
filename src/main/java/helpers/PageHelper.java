@@ -9,7 +9,7 @@ import java.util.List;
  * Класс, содержащий вспомогательные методы.
  * @author Кирилл Желтышев
  */
-public class Helper {
+public class PageHelper {
     /**
      * Метод переключения на последнюю вкладку браузера, которую открыл web-драйвер.
      * @author Кирилл Желтышев
