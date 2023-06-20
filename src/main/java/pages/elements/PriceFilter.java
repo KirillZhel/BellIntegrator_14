@@ -39,7 +39,7 @@ public class PriceFilter {
      * @author Кирилл Желтышев
      * @param minPrice вводимая минимальная цена
      */
-    @Step("Устанавливаем минимальную цену: \"{minPrice}\"")
+    @Step("Устанавливаем минимальную цену: \"{minPrice}\".")
     public void setMinPrice(int minPrice) {
         filterInput(minPriceInputLocator, minPrice);
     }
@@ -49,7 +49,7 @@ public class PriceFilter {
      * @author Кирилл Желтышев
      * @param maxPrice вводимая максимальная цена
      */
-    @Step("Устанавливаем максимальную цену: \"{maxPrice}\"")
+    @Step("Устанавливаем максимальную цену: \"{maxPrice}\".")
     public void setMaxPrice(int maxPrice) {
         filterInput(maxPriceInputLocator, maxPrice);
     }
@@ -60,6 +60,7 @@ public class PriceFilter {
      * @param locator локатор строки ввода фильтра.
      * @param price вводимая цена
      */
+    @Step("Печатаем в web-элемент (локатор: \"{locator}\") цену {price}.")
     private void filterInput(String locator, int price) {
         WebElement input =  driver.findElement(By.xpath(locator));
         input.clear();

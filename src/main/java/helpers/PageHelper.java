@@ -1,5 +1,6 @@
 package helpers;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class PageHelper {
      * @author Кирилл Желтышев
      * @param driver web-драйвер для которого надо переключить вкладку
      */
+    @Step("Переходим на последнюю открывшуюся страницу в окне браузера.")
     public static void switchToLastTab(WebDriver driver) {
         List<String> handles = new ArrayList<>(driver.getWindowHandles());
         String lastTab = handles.get(handles.size() - 1);

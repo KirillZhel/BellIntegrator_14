@@ -4,6 +4,7 @@ import com.browserup.harreader.model.Har;
 import com.browserup.harreader.model.HarEntry;
 import com.jayway.jsonpath.JsonPath;
 import core.*;
+import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Step;
 import models.SearchResultsInfo;
@@ -46,8 +47,9 @@ public class YandexMarketTests extends BaseTest {
      * @param maxPriceForFilter Максимальная цена для фильтра
      * @param snippetsNumber Граничное количество карточек товаров
      */
-    @Feature("Yandex Market")
-    @DisplayName("Проверка выдачи товаров")
+    @Epic("Яндекс Маркет")
+    @Feature(value = "Выдача товаров Яндекс Маркета")
+    @DisplayName(value = "Проверка выдачи товаров")
     @ParameterizedTest
     @MethodSource("helpers.DataProvider#provideCheckingMarket")
     public void searchingProductsTest(
@@ -134,6 +136,7 @@ public class YandexMarketTests extends BaseTest {
      * @author Кирилл Желтышев
      * @return Объект, который содержит в себе дополнительную информацию.
      */
+    @Step("Берём дополнительную информацию из результата запроса.")
     private SearchResultsInfo getSearchResultsInfo() {
         waitForState(() -> getMostRecentHarEntryForSearchRequest(proxy.getHar()),
                 harEntry -> harEntry
@@ -152,6 +155,7 @@ public class YandexMarketTests extends BaseTest {
      * @param maxPrice Максимальная цена
      * @return true - в случае, если все товары на странице соответствуют фильтру, false - если не соответствуют
      */
+    @Step("Проверяем все карточки товаров на странице на соответствие цене (от {minPrice} до {maxPrice}).")
     private boolean areAllSnippetsHaveCurrentPrice(List<Snippet> snippets, int minPrice, int maxPrice) {
         return snippets.stream().allMatch(snippet -> snippet.price >= minPrice && snippet.price <= maxPrice);
     }
@@ -163,6 +167,7 @@ public class YandexMarketTests extends BaseTest {
      * @param strings Список строк
      * @return true - в случае, если все товары на странице соответствуют фильтру, false - если не соответствуют
      */
+    @Step("Проверяем все карточки товаров на странице на соответствие производителю.")
     private boolean areAllSnippetsContainsAnyStringInName(List<Snippet> snippets, List<String> strings) {
         return snippets.stream()
                 .map(snippet -> snippet.name.toLowerCase())
@@ -176,6 +181,7 @@ public class YandexMarketTests extends BaseTest {
      * @param har Файл har
      * @return Дополнительная информация запроса
      */
+    @Step("Берём из Har определённые значения.")
     private SearchResultsInfo extractLatestSearchResultsResponse(Har har) {
         HarEntry mostRecentEntry = getMostRecentHarEntryForSearchRequest(har);
         String rawJson = mostRecentEntry.getResponse().getContent().getText();
@@ -198,6 +204,7 @@ public class YandexMarketTests extends BaseTest {
      * @param har Файл har
      * @return запись Har
      */
+    @Step("Берём из Har определённые записи.")
     private HarEntry getMostRecentHarEntryForSearchRequest(Har har) {
         Optional<HarEntry> mostRecentEntry = har.getLog().findMostRecentEntry(Pattern.compile(".*search/resolveRemoteSearch.*"));
         return mostRecentEntry

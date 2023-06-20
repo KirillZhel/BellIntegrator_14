@@ -49,7 +49,7 @@ public class ManufacturerFilter {
      * Метод раскрытия полного списка производителей по нажатию на кнопку "Показать всё".
      * @author Кирилл Желтышев
      */
-    @Step("Нажимаем на кнопку \"Показать всё\" у фильтра \"Производитель\"")
+    @Step("Нажимаем на кнопку \"Показать всё\" у фильтра \"Производитель\".")
     public void clickShowAllButton() {
         WebElement button = driver
                 .findElement(By.xpath(manufacturerFilterLocator))
@@ -62,7 +62,7 @@ public class ManufacturerFilter {
      * Метод выбора списка производителей в фильтре.
      * @author Кирилл Желтышев
      */
-    @Step("Выбираем производителей")
+    @Step("Выбираем производителей.")
     public void chooseManufacturers(List<String> manufacturers) {
         manufacturers.forEach(this::chooseManufacturer);
     }
@@ -71,7 +71,7 @@ public class ManufacturerFilter {
      * Метод выбора производителя в фильтре.
      * @author Кирилл Желтышев
      */
-    @Step("Выбираем производителя: \"{name}\"")
+    @Step("Выбираем производителя: \"{name}\".")
     private void chooseManufacturer(String name) {
         clearFilterInput();
         typeTextToInput(name);
@@ -82,6 +82,7 @@ public class ManufacturerFilter {
      * Метод, печатающий в строку ввода наименования производителя в фильтре.
      * @author Кирилл Желтышев
      */
+    @Step("Вводим \"{text}\" в строку поиска.")
     private void typeTextToInput(String text) {
         filterInput().sendKeys(text);
     }
@@ -91,6 +92,7 @@ public class ManufacturerFilter {
      * @author Кирилл Желтышев
      * @param optionName имя производителя, на чек-бокс которого надо кликнуть
      */
+    @Step("Кликаем по чекбоксу у \"{optionName}\".")
     private void clickOption(String optionName) {
         WebElement option = filterContainer().findElement(By.xpath(filterOptionLabel(optionName)));
         option.click();

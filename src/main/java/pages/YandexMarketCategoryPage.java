@@ -118,7 +118,8 @@ public class YandexMarketCategoryPage extends BasePage {
      * @author Кирилл Желтышев
      * @return Список всех карточек товаров на странице
      */
-    public List<Snippet> getShownSnippetsList() {
+    @Step("Собираем все карточки, которые загружены на странице.")
+    private List<Snippet> getShownSnippetsList() {
         List<WebElement> elements = driver.findElements(By.xpath(productSnippetLocator));
         return elements.stream().map(e -> {
             String name = e.findElement(By.xpath(snippetTitleLocator)).getText();
@@ -133,6 +134,7 @@ public class YandexMarketCategoryPage extends BasePage {
      * Метод, ожидающий прогрузки карточек товаров.
      * @author Кирилл Желтышев
      */
+    @Step("Ожидаем принятия фильтра и прогрузки товаров.")
     public void waitForDataLoaded() {
         Supplier<WebElement> spinner = () -> driver.findElement(By.xpath(spinnerLocator));
         WaitUtils.waitForState(spinner, it -> !it.isDisplayed());
@@ -144,7 +146,8 @@ public class YandexMarketCategoryPage extends BasePage {
      * Метод прокрутки страницы, пока подгружаются новые товары.
      * @author Кирилл Желтышев
      */
-    public void scrollAllSnippets() {
+    @Step("Скролим до тех пор, пока на странице подгружаются товары.")
+    private void scrollAllSnippets() {
         List<WebElement> previousSnippetsList = this.driver.findElements(By.xpath(productSnippetLocator));
 
         while(true) {
@@ -191,7 +194,7 @@ public class YandexMarketCategoryPage extends BasePage {
      * @author Кирилл Желтышев
      * @return Номер первой страницы
      */
-    @Step("Переходим на первую страницу")
+    @Step("Переходим на первую страницу.")
     public int goToFirstPage() {
         goToPage(1);
         return 1;

@@ -77,6 +77,7 @@ public class YandexMarketMainPage extends BasePage {
      * @param locator Локатор искомого элемента
      * @return Искомый элемент
      */
+    @Step("Ищем элемент на странице по локатору: {locator}.")
     private  WebElement findElement(String locator) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locator)));
         return driver.findElement(By.xpath(locator));
@@ -87,6 +88,7 @@ public class YandexMarketMainPage extends BasePage {
      * @author Кирилл Желтышев
      * @param category Категория, под которыю требуется составить локатор
      */
+    @Step("Составляем локатор для поиска \"{category}\"")
     private void createCategoryLocatorString(String category) {
         categoryLocator = "//*[text()='" + category + "']/ancestor::li";
     }
@@ -96,6 +98,7 @@ public class YandexMarketMainPage extends BasePage {
      * @author Кирилл Желтышев
      * @param subcategory Подкатегория, под которыю требуется составить локатор
      */
+    @Step("Составляем локатор для поиска \"{subcategory}\"")
     private void createSubcategoryLocatorString(String subcategory) {
         subcategoryLocator = "//*[text()='" + subcategory + "']/ancestor::li";
     }
