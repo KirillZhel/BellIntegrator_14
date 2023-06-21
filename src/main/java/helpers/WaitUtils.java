@@ -34,10 +34,6 @@ public class WaitUtils {
      * @param duration время ожидания
      */
     public static void wait(Duration duration) {
-        try {
-            Thread.sleep(duration.toMillis());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        Awaitility.await().pollDelay(duration).until(() -> true);
     }
 }
